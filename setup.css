@@ -1,0 +1,17 @@
+canvas 
+{
+    border: 1px solid #d3d3d3;
+    padding: 0;
+    margin: auto;
+    display: block;
+}
+
+h1 
+{
+    font-size: 100px;
+    text-align: center;
+    font-family: 'Faster One', cursive;
+    color: #1a1aff;
+    margin: auto;
+    padding: 0;
+}

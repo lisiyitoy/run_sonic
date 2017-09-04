@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Run Sonic</title>
+        <link rel="stylesheet" href="setup.css">
+        <link href="https://fonts.googleapis.com/css?family=Faster+One" rel="stylesheet">
+    </head>
+    
+    <body>
+        <h1>Run Sonic</h1>
+        <div style="display:none;">
+            <link rel="prefetch" href="./images/0.PNG">
+            <link rel="prefetch" href="./images/1.PNG">
+            <link rel="prefetch" href="./images/2.PNG">
+            <link rel="prefetch" href="./images/3.PNG">
+            <link rel="prefetch" href="./images/4.PNG">
+            <link rel="prefetch" href="./images/5.PNG">
+            <link rel="prefetch" href="./images/6.PNG">
+            <link rel="prefetch" href="./images/7.PNG">
+            <link rel="prefetch" href="./images/8.PNG">
+            <link rel="prefetch" href="./images/10.PNG">
+            <link rel="prefetch" href="./images/11.PNG">
+            <link rel="prefetch" href="./images/12.PNG">
+            <link rel="prefetch" href="./images/15.PNG">
+            <link rel="prefetch" href="./images/18.PNG">
+            <link rel="prefetch" href="./images/19.PNG">
+            <link rel="prefetch" href="./images/20.PNG">
+            <link rel="prefetch" href="./images/21.PNG">
+            <link rel="prefetch" href="./images/22.PNG">
+            <link rel="prefetch" href="./music/music2.mp3"> 
+        </div>
+        <script>
+            var myGameArea = makeGameArea(900, 600, "myArea", "white");
+            var myGameArea2 = makeGameArea(900, 180, "myArea", "white");
+            var myContext = myGameArea.getContext("2d");
+            var myContext2 = myGameArea2.getContext("2d");
+            var letters = [];
+            var events = [];
+            var myMusic = new sound("./music/music2.mp3");
+            myMusic.play();
+            
+            var dropping;
+            var checkLimit;
+            var typing;
+            var myImage = new makeImage(myContext2, "./images/0.png", 91, 97, 800, 80, 900, 150);
+            var badGuy = new makeImage(myContext2, "./images/18.png", 153, 139, 0, 20, 900, 0);
+            var runningBackward;
+            var badGuyChasing;
+            
+            myContext.font = "120px Forte"
+            myContext.fillText("5", 420, 300);
+            setTimeout(function(){myContext.clearRect(0, 0, 900, 600); myContext.fillText("4", 420, 300);}, 1500);
+            setTimeout(function(){myContext.clearRect(0, 0, 900, 600); myContext.fillText("3", 420, 300);}, 3000);
+            setTimeout(function(){myContext.clearRect(0, 0, 900, 600); myContext.fillText("2", 420, 300);}, 4500);
+            setTimeout(function(){myContext.clearRect(0, 0, 900, 600); myContext.fillText("1", 420, 300);}, 6000);
+            setTimeout(function(){myContext.clearRect(0, 0, 900, 600); myContext.fillText("Start", 320, 300);}, 7500);
+            setTimeout(function(){myContext.clearRect(0, 0, 900, 600); }, 8500);
+            
+            setTimeout(function(){gameStart()}, 8900);
+            
+            function gameStart(){
+                window.addEventListener("keydown", typing = function(e){clearLetter(letters, e.keyCode)});
+                dropping = setInterval(function(){dropLetters(myGameArea, myContext, letters)}, 10);
+                checkLimit = setInterval(function(){letterOutRange(letters)}, 100);    
+                runningBackward = setInterval(function(){drawGif(myGameArea, myImage, -2)}, 25);
+                badGuyChasing = setInterval(function(){makeChasing(myGameArea2, badGuy, 2)}, 45);
+            
+                events.push(dropping);
+                events.push(checkLimit);
+                events.push(runningBackward);
+                events.push(badGuyChasing);
+                setInterval(function(){gameOver(events, myImage, badGuy, myMusic)}, 100);
+            }
+            
+            function secretMove(character){
+                clearInterval(runningBackward);
+                var pose = setInterval(function(){switchPose(myImage, "./images/10.png", 5, -11)}, 25);
+                setTimeout(function(){clearInterval(pose)}, 100);
+                setTimeout(function(){pose = setInterval(function(){switchPose(character, "./images/11.png", 5, -11);}, 25)}, 100);
+                setTimeout(function(){clearInterval(pose)}, 200);
+                setTimeout(function(){pose = setInterval(function(){switchPose(character, "./images/12.png", 5, 11);}, 25)}, 200);
+                setTimeout(function(){clearInterval(pose)}, 300);
+                setTimeout(function(){pose = setInterval(function(){switchPose(character, "./images/15.png", 5, 15);}, 25)}, 300);
+                setTimeout(function(){clearInterval(pose)}, 400);
+                setTimeout(function(){pose = setInterval(function(){rolling(character)}, 20)}, 400);
+                setTimeout(function(){clearInterval(pose)}, 1400);
+                setTimeout(function(){pose = setInterval(function(){switchPose(character, "./images/15.png", 5, -11);}, 25)}, 1400);
+                setTimeout(function(){clearInterval(pose)}, 1500);
+                setTimeout(function(){pose = setInterval(function(){switchPose(character, "./images/12.png", 5, -11);}, 25)}, 1500);
+                setTimeout(function(){clearInterval(pose)}, 1600);
+                setTimeout(function(){pose = setInterval(function(){switchPose(character, "./images/11.png", 5, 11);}, 25)}, 1600);
+                setTimeout(function(){clearInterval(pose)}, 1700);
+                setTimeout(function(){pose = setInterval(function(){switchPose(character, "./images/10.png", 5, 11);}, 25)}, 1700);
+                setTimeout(function(){clearInterval(pose)}, 1800);
+                setTimeout(function(){runningBackward = setInterval(function(){drawGif(myGameArea, character, -2)}, 25)}, 1800) 
+            }
+            
+            function rolling(character){
+                myContext2.clearRect(character.x, character.y, character.width, character.height);
+                if(myGameArea.frame%4 == 0){
+                    character.image.src = "./images/19.png";
+                }
+                else if(myGameArea.frame%4 == 1){
+                    character.image.src = "./images/20.png";
+                }
+                else if(myGameArea.frame%4 == 2){
+                    character.image.src = "./images/21.png";
+                }
+                else if(myGameArea.frame%4 == 3){
+                    character.image.src = "./images/22.png";
+                }
+                character.speedX = 3;
+                character.moveHorizontal();
+                character.draw();
+            }
+            
+            function switchPose(gifObject, src, x, y){
+                myContext2.clearRect(gifObject.x, gifObject.y, gifObject.width, gifObject.height);
+                gifObject.speedX = x;
+                gifObject.speedY = y;
+                gifObject.moveHorizontal();
+                gifObject.moveVertical();
+                gifObject.image.src = src;
+                gifObject.draw();
+            }
+            
+            function makeGameArea(width, height, idName, backgroundColor){
+                var gameArea = document.createElement("canvas");
+                gameArea.id = idName;
+                gameArea.width = width;
+                gameArea.height = height;
+                gameArea.score = 0;
+                gameArea.frame = 0;
+                gameArea.level = 0;
+                gameArea.style = "background-color:" + backgroundColor;
+                document.body.appendChild(gameArea);
+                return gameArea;
+            }
+            
+            function makeComponent(ctx, keyCode, width, height, color, x, y){
+                this.width = width;
+                this.height = height;
+                this.x = x;
+                this.y = y;
+                this.speedX = 0;
+                this.speedY = 0;
+                this.letter = String.fromCharCode(keyCode);
+                this.keyCode = keyCode;
+                this.keyPress = false;
+                this.context = ctx;           
+                
+                this.draw = function(){
+                    this.context.font = "40px Georgia";
+                    this.context.textBaseline = "middle";
+                    this.context.textAlign = "center";
+                    this.context.strokeStyle = color;
+                    this.context.strokeRect(this.x, this.y, this.width, this.height);
+                    this.context.fillText( this.letter, this.x + (this.width/2), this.y + (this.height/2) );
+                }
+                
+                this.move = function(){
+                    if(this.keyPress == false){
+                        this.context.strokeStyle = color;
+                        this.context.clearRect(this.x-1, this.y-1, this.width+2, this.height+2);
+                        this.x = this.x + this.speedX;
+                        this.y = this.y + this.speedY;
+                        this.draw();
+                    }
+                    else{
+                        this.context.clearRect(this.x-1, this.y-1, this.width+2, this.height+2);
+                    }
+                }
+                
+                this.crashWith = function(object){
+                    var myLeft = this.x;
+                    var myRight = this.x + this.width;
+                    var myTop = this.y;
+                    var myBottom = this.y + this.height;
+                    var objectLeft = object.x;
+                    var objectRight = object.x + object.width;
+                    var objectTop = object.y;
+                    var objectBottom = object.y + object.height;
+                    var crashing = true;
+                    if( (myBottom < objectTop) || (myTop > objectBottom) || (myRight < objectLeft) || (myLeft > objectRight) ){
+                        crashing = false;
+                    }
+                    return crashing;
+                }
+            }
+            
+            function scoreCounting(){
+                myGameArea.score++;
+            }
+            
+            function makeImage(ctx, src, width, height, x, y, rightRange, leftRange){
+                this.image = new Image();
+                this.image.src = src;
+                this.width = width;
+                this.height = height;
+                this.x = x;
+                this.y = y;
+                this.speedX = 0;
+                this.speedY = 0;
+                this.rightRange = rightRange;
+                this.leftRange = leftRange;
+                
+                this.moveHorizontal = function(){
+                    this.x = this.x + this.speedX;
+                }
+                
+                this.moveVertical = function(){
+                    this.y = this.y + this.speedY;
+                }
+                
+                this.draw = function(){
+                    if(this.x + this.width > this.rightRange){
+                        this.x = this.rightRange - this.width;
+                    }
+                    else if(this.x < this.leftRange){
+                        this.x = this.leftRange;
+                    }
+                    
+                    if(this.y + this.height > 177){
+                        this.y = 177 - this.height;
+                    }
+                    ctx.drawImage(this.image, this.x, this.y, this.width, this.height)
+                };
+                
+                this.image.onload = this.draw.bind(this);
+            }
+            
+            function makeChasing(map, gifObject, speed){
+                map.frame++;
+                
+                if(map.frame%2 == 0){
+                    speed = -1 * speed;
+                }            
+                gifObject.speedY = speed;
+                gifObject.moveVertical();
+                gifObject.draw();
+            }
+            
+            function drawGif(map, gifObject, speed){
+                myContext2.clearRect(gifObject.x, gifObject.y, gifObject.width, gifObject.height);
+                if(map.frame%4 == 0){
+                    gifObject.image.src = "./images/0.png";
+                }
+                else if(map.frame%4 == 1){
+                    gifObject.image.src = "./images/1.png";
+                }
+                else if(map.frame%4 == 2){
+                    gifObject.image.src = "./images/2.png";
+                }
+                else if(map.frame%4 == 3){
+                    gifObject.image.src = "./images/3.png";
+                }
+                gifObject.speedX = speed;
+                gifObject.moveHorizontal();
+                gifObject.draw();
+            }
+            
+            function drawGif2(map, gifObject, speed){
+                myContext2.clearRect(gifObject.x, gifObject.y, gifObject.width, gifObject.height);
+                if(map.frame%5 == 0){
+                    gifObject.image.src = "./images/4.png";
+                }
+                else if(map.frame%5 == 1){
+                    gifObject.image.src = "./images/5.png";
+                }
+                else if(map.frame%5 == 2){
+                    gifObject.image.src = "./images/6.png";
+                }
+                else if(map.frame%5 == 3){
+                    gifObject.image.src = "./images/7.png";
+                }
+                else if(map.frame%5 == 4){
+                    gifObject.image.src = "./images/8.png";
+                }
+                gifObject.speedX = speed;
+                gifObject.moveHorizontal();
+                gifObject.draw();
+            }
+            
+            function clearComponent(ctx, object){
+                ctx.clearRect(object.x-1, object.y-1, object.width+2, object.height+2);
+            }
+            
+            function movingDown(object){
+                object.speedY = 2;
+                object.move(); 
+            }
+            
+            function keyPress(letter, keyCode){
+                if(keyCode + 32 == letter.keyCode){
+                    letter.keyPress = true;
+                }
+            }
+            
+            function intervalTask(object, n){
+                if( (object.frame/n)%1 == 0 ){
+                    return true;
+                }
+                else{
+                    return false;
+                }
+            }
+            
+            function dropLetters(map, ctx, letterList){
+                map.frame++;
+                if(map.level <= 65 && intervalTask(map, 10)){
+                    map.level = map.level + 1; 
+                }
+                
+                if(intervalTask(map, 100-map.level)){
+                    var x = Math.floor(Math.random()*(map.width-60-10) + 10);
+                    var code = Math.floor(Math.random()*26 + 97);
+                    var letter = new makeComponent(ctx, code, 50, 50, "blue", x, -50);
+                    letterList.push(letter);
+                }
+                
+                for(i=0; i<letterList.length; i++){
+                    movingDown(letterList[i]);
+                }
+            }
+            
+            function clearLetter(letterList, code){
+                for(i=0; i<letterList.length; i++){               
+                    if(code + 32 == letterList[i].keyCode){
+                        scoreCounting();
+                        letterList[i].keyPress = true;
+                        letterList[i].move();
+                        letterList.splice(i, 1);
+                        
+                        if(myGameArea.score%40 == 0){
+                            window.removeEventListener("keydown", typing);
+                            secretMove(myImage);
+                            setTimeout(function(){window.addEventListener("keydown", typing)}, 1800);
+                            break;
+                        }
+                        else{
+                            clearInterval(runningBackward);
+                            var runningForward = setInterval(function(){drawGif2(myGameArea, myImage, 1)}, 5);
+                            setTimeout(function(){clearInterval(runningForward)}, 200);
+                            setTimeout(runningBackward = setInterval(function(){drawGif(myGameArea, myImage, -2);}, 25), 200);
+                            setTimeout(events.push(runningBackward), 200);
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            function letterOutRange(letterList){
+                for(i=0; i<letterList.length; i++){
+                    if(letterList[i].y > 600){
+                        letterList.splice(i, 1);
+                    }
+                }
+            }
+            
+            function gameOver(evenList, target, chaser, BGM){
+                if(target.x < chaser.x + chaser.width){
+                    window.removeEventListener("keydown", typing);
+                    for(i=0; i<evenList.length; i++){
+                        clearInterval(evenList[i]);
+                    }
+                    BGM.stop();
+                    myContext.fillStyle = "black";
+                    myContext.font = "50px Forte";
+                    myContext.fillText("You typed " + myGameArea.score + " letters", 460, 300);
+                }            
+            }
+            
+            function sound(src){
+                this.sound = document.createElement("audio");
+                this.sound.src = src;
+                this.sound.setAttribute("preload", "auto");
+                this.sound.setAttribute("controls", "none");
+                this.sound.style.display = "none";
+                document.body.appendChild(this.sound);
+                    this.play = function(){
+                    this.sound.play();
+                }
+                    this.stop = function(){
+                    this.sound.pause();
+                }
+            }
+            
+        </script>
+    </body>
+    
+</html>
